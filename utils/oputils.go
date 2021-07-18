@@ -99,3 +99,22 @@ func CreateVeleroBackup(client dynamic.Interface, spec *unstructured.Unstructure
 	}
 	return *veleroResource, err
 }
+
+func RestoreVeleroBackup(client dynamic.Interface, spec *unstructured.Unstructured, namespace string) (unstructured.Unstructured, error) {
+	resourceClient := client.Resource(schema.GroupVersionResource{
+		Group:    "velero.io",
+		Version:  "v1",
+		Resource: "restores",
+	})
+
+	veleroResource, err := resourceClient.Namespace(namespace).Create(context.Background(), spec, metav1.CreateOptions{})
+	// return err
+	if err != nil && kuberrs.IsAlreadyExists(err) {
+		veleroResource, err := resourceClient.Namespace(namespace).Get(context.Background(), spec.GetName(), metav1.GetOptions{})
+		return *veleroResource, err
+	}
+	if err != nil {
+		panic(err.Error())
+	}
+	return *veleroResource, err
+}
