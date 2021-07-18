@@ -7,6 +7,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	kuberrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -82,13 +83,18 @@ func CreateKDeployment(clientset *kubernetes.Clientset, deploymentMeta *metav1.O
 		ObjectMeta: *deploymentMeta,
 		Spec:       *deploymentSpec,
 	}
-	_, exists := deploymentsClient.Get(context.Background(), deploymentMeta.Name, metav1.GetOptions{})
+	// _, exists := deploymentsClient.Get(context.Background(), deploymentMeta.Name, metav1.GetOptions{})
 	// fmt.Println(ns_exists, exists_error)
-	if exists == nil {
-		// fmt.Println("here")
-		_ = deploymentsClient.Delete(context.Background(), deploymentMeta.Name, metav1.DeleteOptions{})
-	}
+	// if exists == nil {
+	// 	// fmt.Println("here")
+	// err := deploymentsClient.Delete(context.Background(), deploymentMeta.Name, metav1.DeleteOptions{})
+	// }
+	// if <-ch != nil {
 	_, err := deploymentsClient.Create(context.Background(), deployment, metav1.CreateOptions{})
+	// }
+	if err != nil && kuberrs.IsAlreadyExists(err) {
+		return nil
+	}
 	return err
 }
 
@@ -98,13 +104,17 @@ func CreateKService(clientset *kubernetes.Clientset, serviceMeta *metav1.ObjectM
 		ObjectMeta: *serviceMeta,
 		Spec:       *serviceSpec,
 	}
-	_, exists := serviceClient.Get(context.Background(), serviceMeta.Name, metav1.GetOptions{})
-	// fmt.Println(ns_exists, exists_error)
-	if exists == nil {
-		// fmt.Println("here")
-		_ = serviceClient.Delete(context.Background(), serviceMeta.Name, metav1.DeleteOptions{})
-	}
+	// _, exists := serviceClient.Get(context.Background(), serviceMeta.Name, metav1.GetOptions{})
+	// // fmt.Println(ns_exists, exists_error)
+	// if exists == nil {
+	// 	// fmt.Println("here")
+	// 	_ = serviceClient.Delete(context.Background(), serviceMeta.Name, metav1.DeleteOptions{})
+	// }
 	_, err := serviceClient.Create(context.Background(), service, metav1.CreateOptions{})
+	// return err
+	if err != nil && kuberrs.IsAlreadyExists(err) {
+		return nil
+	}
 	return err
 }
 
@@ -114,12 +124,16 @@ func CreateOroute(client dynamic.Interface, spec *unstructured.Unstructured, nam
 		Version:  "v1",
 		Resource: "routes",
 	})
-	_, exists := resourceClient.Namespace(namespace).Get(context.Background(), spec.GetName(), metav1.GetOptions{})
-	// fmt.Println(ns_exists, exists_error)
-	if exists == nil {
-		// fmt.Println("here")
-		_ = resourceClient.Namespace(namespace).Delete(context.Background(), spec.GetName(), metav1.DeleteOptions{})
-	}
+	// _, exists := resourceClient.Namespace(namespace).Get(context.Background(), spec.GetName(), metav1.GetOptions{})
+	// // fmt.Println(ns_exists, exists_error)
+	// if exists == nil {
+	// 	// fmt.Println("here")
+	// 	_ = resourceClient.Namespace(namespace).Delete(context.Background(), spec.GetName(), metav1.DeleteOptions{})
+	// }
 	_, err := resourceClient.Namespace(namespace).Create(context.Background(), spec, metav1.CreateOptions{})
+	// return err
+	if err != nil && kuberrs.IsAlreadyExists(err) {
+		return nil
+	}
 	return err
 }
