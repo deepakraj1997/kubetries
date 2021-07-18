@@ -8,5 +8,6 @@ import (
 
 func main() {
 	fmt.Printf("Deploying Nginx Stateless")
-	nginx.DeployNginxStateless()
+	// nginx.DeployNginxStateless()
+	nginx.BackupNginxStateless()
 }
