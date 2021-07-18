@@ -7,6 +7,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -90,6 +92,36 @@ func DeployNginxStateless() {
 		Type: "LoadBalancer",
 	}
 	err = utils.CreateKService(clientset, &serviceMeta, &serviceSpec)
+	if err != nil {
+		panic(err.Error())
+	}
+	var dclient dynamic.Interface
+	dclient, err = utils.LoadDConfig(configPath)
+	if err != nil {
+		panic(err.Error())
+	}
+	var routeSpec = unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"metadata": map[string]interface{}{
+				"name":      "nginx-deployment",
+				"namespace": "nginx-example",
+				"labels": map[string]string{
+					"app":     "nginx",
+					"service": "nginx",
+				},
+			},
+			"spec": map[string]interface{}{
+				"to": map[string]interface{}{
+					"kind": "Service",
+					"name": "nginx",
+				},
+				"port": map[string]interface{}{
+					"targetPort": 8080,
+				},
+			},
+		},
+	}
+	err = utils.CreateOroute(dclient, &routeSpec, namespace)
 	if err != nil {
 		panic(err.Error())
 	}
