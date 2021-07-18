@@ -15,9 +15,10 @@ func int32Ptr(i int32) *int32 {
 }
 
 func DeployNginxStateless() {
-	fmt.Print("Deploy Nginx using Go Client")
+	fmt.Print("\nDeploy Nginx using Go Client")
 	var nginxLabel map[string]string
-	var namespace string = "nginx-example"
+	nginxLabel = make(map[string]string)
+	var namespace string = "nginx-example1"
 	var clientset *kubernetes.Clientset
 	var err error
 	nginxLabel["app"] = "nginx"

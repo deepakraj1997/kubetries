@@ -60,6 +60,13 @@ func CreateKNamespace(clientset *kubernetes.Clientset, namespace string, labels 
 			Labels: labels,
 		},
 	}
+
+	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
+	// fmt.Println(ns_exists, exists_error)
+	if exists == nil {
+		// fmt.Println("here")
+		return nil
+	}
 	_, err := clientset.CoreV1().Namespaces().Create(context.Background(), ns, metav1.CreateOptions{})
 	return err
 }
@@ -70,20 +77,32 @@ func DeleteKNamespace(clientset *kubernetes.Clientset, namespace string) error {
 }
 
 func CreateKDeployment(clientset *kubernetes.Clientset, deploymentMeta *metav1.ObjectMeta, deploymentSpec *appsv1.DeploymentSpec) error {
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	deploymentsClient := clientset.AppsV1().Deployments(deploymentMeta.Namespace)
 	deployment := &appsv1.Deployment{
 		ObjectMeta: *deploymentMeta,
 		Spec:       *deploymentSpec,
+	}
+	_, exists := deploymentsClient.Get(context.Background(), deploymentMeta.Name, metav1.GetOptions{})
+	// fmt.Println(ns_exists, exists_error)
+	if exists == nil {
+		// fmt.Println("here")
+		_ = deploymentsClient.Delete(context.Background(), deploymentMeta.Name, metav1.DeleteOptions{})
 	}
 	_, err := deploymentsClient.Create(context.Background(), deployment, metav1.CreateOptions{})
 	return err
 }
 
 func CreateKService(clientset *kubernetes.Clientset, serviceMeta *metav1.ObjectMeta, serviceSpec *apiv1.ServiceSpec) error {
-	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+	serviceClient := clientset.CoreV1().Services(serviceMeta.Namespace)
 	service := &apiv1.Service{
 		ObjectMeta: *serviceMeta,
 		Spec:       *serviceSpec,
+	}
+	_, exists := serviceClient.Get(context.Background(), serviceMeta.Name, metav1.GetOptions{})
+	// fmt.Println(ns_exists, exists_error)
+	if exists == nil {
+		// fmt.Println("here")
+		_ = serviceClient.Delete(context.Background(), serviceMeta.Name, metav1.DeleteOptions{})
 	}
 	_, err := serviceClient.Create(context.Background(), service, metav1.CreateOptions{})
 	return err
@@ -95,6 +114,12 @@ func CreateOroute(client dynamic.Interface, spec *unstructured.Unstructured, nam
 		Version:  "v1",
 		Resource: "routes",
 	})
+	_, exists := resourceClient.Namespace(namespace).Get(context.Background(), spec.GetName(), metav1.GetOptions{})
+	// fmt.Println(ns_exists, exists_error)
+	if exists == nil {
+		// fmt.Println("here")
+		_ = resourceClient.Namespace(namespace).Delete(context.Background(), spec.GetName(), metav1.DeleteOptions{})
+	}
 	_, err := resourceClient.Namespace(namespace).Create(context.Background(), spec, metav1.CreateOptions{})
 	return err
 }

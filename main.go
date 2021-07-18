@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/deepakraj1997/kubetries/utils"
+	"github.com/deepakraj1997/kubetries/nginx"
 )
 
 func main() {
-	fmt.Printf("hello")
-	utils.ParseFile("hello")
+	fmt.Printf("Deploying Nginx Stateless")
+	nginx.DeployNginxStateless()
 }
