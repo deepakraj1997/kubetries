@@ -56,7 +56,7 @@ func CreateMyVeleroInstance(client dynamic.Interface, namespace string) (unstruc
 					"csix",
 					"openshift",
 				},
-				"backup_storage_locations": []map[string]interface{}{
+				"backup_storage_locations": [](map[string]interface{}){
 					map[string]interface{}{
 						"config": map[string]interface{}{
 							"profile": "default",
@@ -76,7 +76,7 @@ func CreateMyVeleroInstance(client dynamic.Interface, namespace string) (unstruc
 				},
 				"velero_feature_flags": "EnableCSI",
 				"enable_restic":        true,
-				"volume_snapshot_locations": []map[string]interface{}{
+				"volume_snapshot_locations": [](map[string]interface{}){
 					map[string]interface{}{
 						"config": map[string]interface{}{
 							"profile": "default",
