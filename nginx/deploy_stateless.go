@@ -20,12 +20,13 @@ func DeployNginxStateless() {
 	fmt.Print("\nDeploy Nginx using Go Client")
 	var nginxLabel map[string]string
 	nginxLabel = make(map[string]string)
-	var namespace string = "nginx-example1"
+	var namespace string = "nginx-example"
 	var clientset *kubernetes.Clientset
 	var err error
 	nginxLabel["app"] = "nginx"
 	var configPath string = "/Users/drajds/.agnosticd/drajds0714ocp4b/ocp4-workshop_drajds0714ocp4b_kubeconfig"
-	clientset, err = utils.LoadKConfig(configPath)
+	var dclient dynamic.Interface
+	clientset, dclient, err = utils.LoadConfig(configPath)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -95,8 +96,6 @@ func DeployNginxStateless() {
 	if err != nil {
 		panic(err.Error())
 	}
-	var dclient dynamic.Interface
-	dclient, err = utils.LoadDConfig(configPath)
 	if err != nil {
 		panic(err.Error())
 	}

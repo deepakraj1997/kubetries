@@ -28,7 +28,7 @@ func ParseFile(path string) string {
 	return string(dat)
 }
 
-func LoadKConfig(path string) (*kubernetes.Clientset, error) {
+func LoadConfig(path string) (*kubernetes.Clientset, dynamic.Interface, error) {
 	var kubeconfig *string
 
 	kubeconfig = flag.String("kubeconfig", path, "kubeconfig file")
@@ -38,21 +38,22 @@ func LoadKConfig(path string) (*kubernetes.Clientset, error) {
 		panic(err.Error())
 	}
 	clientset, err := kubernetes.NewForConfig(config)
-	return clientset, err
+	dclientset, err := dynamic.NewForConfig(config)
+	return clientset, dclientset, err
 }
 
-func LoadDConfig(path string) (dynamic.Interface, error) {
-	var kubeconfig *string
+// func LoadDConfig(path string) (dynamic.Interface, error) {
+// 	var dkubeconfig *string
 
-	kubeconfig = flag.String("kubeconfig", path, "kubeconfig file")
-	flag.Parse()
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-	clientset, err := dynamic.NewForConfig(config)
-	return clientset, err
-}
+// 	dkubeconfig = flag.String("kubeconfig", path, "kubeconfig file")
+// 	flag.Parse()
+// 	dconfig, err := clientcmd.BuildConfigFromFlags("", *dkubeconfig)
+// 	if err != nil {
+// 		panic(err.Error())
+// 	}
+// 	dclientset, err := dynamic.NewForConfig(dconfig)
+// 	return dclientset, err
+// }
 
 func CreateKNamespace(clientset *kubernetes.Clientset, namespace string, labels map[string]string) error {
 	ns := &apiv1.Namespace{
