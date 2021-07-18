@@ -22,12 +22,14 @@ func BackupNginxStateless() {
 	if err != nil {
 		panic(err.Error())
 	}
-	_, err = utils.CreateMyVeleroInstance(dclient, namespace)
-	if err != nil {
-		panic(err.Error())
-	}
+	// _, err = utils.CreateMyVeleroInstance(dclient, namespace)
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 	var backupSpec = unstructured.Unstructured{
 		Object: map[string]interface{}{
+			"apiVersion": "velero.io/v1",
+			"kind":       "Backup",
 			"metadata": map[string]interface{}{
 				"name":      "nginx-stateless",
 				"namespace": namespace,
