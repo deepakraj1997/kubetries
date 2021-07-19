@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"flag"
-	"io/ioutil"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -15,18 +14,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
-
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func ParseFile(path string) string {
-	dat, err := ioutil.ReadFile(path)
-	Check(err)
-	return string(dat)
-}
 
 func LoadConfig(path string) (*kubernetes.Clientset, dynamic.Interface, error) {
 	var kubeconfig *string
@@ -55,6 +42,12 @@ func LoadConfig(path string) (*kubernetes.Clientset, dynamic.Interface, error) {
 // 	return dclientset, err
 // }
 
+func GetKNamespace(clientset *kubernetes.Clientset, namespace string) error {
+	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
+	// fmt.Println(ns_exists, exists_error)
+	return exists
+}
+
 func CreateKNamespace(clientset *kubernetes.Clientset, namespace string, labels map[string]string) error {
 	ns := &apiv1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
@@ -63,11 +56,9 @@ func CreateKNamespace(clientset *kubernetes.Clientset, namespace string, labels 
 		},
 	}
 
-	_, exists := clientset.CoreV1().Namespaces().Get(context.Background(), namespace, metav1.GetOptions{})
-	// fmt.Println(ns_exists, exists_error)
-	if exists == nil {
-		// fmt.Println("here")
-		return nil
+	namespaceExists := GetKNamespace(clientset, namespace)
+	if namespaceExists == nil {
+		return namespaceExists
 	}
 	_, err := clientset.CoreV1().Namespaces().Create(context.Background(), ns, metav1.CreateOptions{})
 	return err

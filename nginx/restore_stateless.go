@@ -8,7 +8,7 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-func RestoreNginxStateless() {
+func RestoreNginxStateless() error {
 	fmt.Print("\n Restore Nginx using Go Client")
 	// var veleroLabel map[string]string
 	// veleroLabel = make(map[string]string)
@@ -20,11 +20,11 @@ func RestoreNginxStateless() {
 	var dclient dynamic.Interface
 	_, dclient, err = utils.LoadConfig(configPath)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	// _, err = utils.CreateMyVeleroInstance(dclient, namespace)
 	// if err != nil {
-	// 	panic(err.Error())
+	// 	return err
 	// }
 	var RestoreSpec = unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -52,6 +52,7 @@ func RestoreNginxStateless() {
 	}
 	_, err = utils.RestoreVeleroBackup(dclient, &RestoreSpec, namespace)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+	return err
 }

@@ -16,7 +16,7 @@ func int32Ptr(i int32) *int32 {
 	return &i
 }
 
-func DeployNginxStateless() {
+func DeployNginxStateless() error {
 	fmt.Print("\nDeploy Nginx using Go Client")
 	var nginxLabel map[string]string
 	nginxLabel = make(map[string]string)
@@ -28,11 +28,11 @@ func DeployNginxStateless() {
 	var dclient dynamic.Interface
 	clientset, dclient, err = utils.LoadConfig(configPath)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	err = utils.CreateKNamespace(clientset, namespace, nginxLabel)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	var deploymentMeta = metav1.ObjectMeta{
 		Name:      "nginx-deployment",
@@ -70,7 +70,7 @@ func DeployNginxStateless() {
 	}
 	err = utils.CreateKDeployment(clientset, &deploymentMeta, &deploymentSpec)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	var serviceMeta = metav1.ObjectMeta{
 		Name:      "nginx-deployment",
@@ -94,10 +94,10 @@ func DeployNginxStateless() {
 	}
 	err = utils.CreateKService(clientset, &serviceMeta, &serviceSpec)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	var routeSpec = unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -122,6 +122,7 @@ func DeployNginxStateless() {
 	}
 	err = utils.CreateOroute(dclient, &routeSpec, namespace)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+	return nil
 }

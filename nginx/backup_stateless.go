@@ -8,7 +8,7 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-func BackupNginxStateless(createVelero bool) {
+func BackupNginxStateless(createVelero bool) error {
 	fmt.Print("\n Backup Nginx using Go Client")
 	// var veleroLabel map[string]string
 	// veleroLabel = make(map[string]string)
@@ -20,12 +20,12 @@ func BackupNginxStateless(createVelero bool) {
 	var dclient dynamic.Interface
 	_, dclient, err = utils.LoadConfig(configPath)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	if createVelero {
-		_, err = utils.CreateMyVeleroInstance(dclient, namespace)
+		_, err = utils.CreateMyVeleroInstance(dclient, namespace, "example-velero")
 		if err != nil {
-			panic(err.Error())
+			return err
 		}
 	}
 	var backupSpec = unstructured.Unstructured{
@@ -49,6 +49,7 @@ func BackupNginxStateless(createVelero bool) {
 	}
 	_, err = utils.CreateVeleroBackup(dclient, &backupSpec, namespace)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+	return err
 }
