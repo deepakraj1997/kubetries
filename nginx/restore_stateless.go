@@ -10,12 +10,12 @@ import (
 
 func RestoreNginxStateless() {
 	fmt.Print("\n Restore Nginx using Go Client")
-	var veleroLabel map[string]string
-	veleroLabel = make(map[string]string)
+	// var veleroLabel map[string]string
+	// veleroLabel = make(map[string]string)
 	var namespace string = "oadp-operator"
 	// var clientset *kubernetes.Clientset
 	var err error
-	veleroLabel["velero.io/storage-location"] = "default"
+	// veleroLabel["velero.io/storage-location"] = "default"
 	var configPath string = "/Users/drajds/.agnosticd/drajds0714ocp4b/ocp4-workshop_drajds0714ocp4b_kubeconfig"
 	var dclient dynamic.Interface
 	_, dclient, err = utils.LoadConfig(configPath)
@@ -33,7 +33,7 @@ func RestoreNginxStateless() {
 			"metadata": map[string]interface{}{
 				"name":      "nginx-stateless",
 				"namespace": namespace,
-				"labels":    veleroLabel,
+				// "labels":    veleroLabel,
 			},
 			"spec": map[string]interface{}{
 				"hooks": map[string]interface{}{},

@@ -8,24 +8,26 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-func BackupNginxStateless() {
+func BackupNginxStateless(createVelero bool) {
 	fmt.Print("\n Backup Nginx using Go Client")
-	var veleroLabel map[string]string
-	veleroLabel = make(map[string]string)
+	// var veleroLabel map[string]string
+	// veleroLabel = make(map[string]string)
 	var namespace string = "oadp-operator"
 	// var clientset *kubernetes.Clientset
 	var err error
-	veleroLabel["velero.io/storage-location"] = "default"
+	// veleroLabel["velero.io/storage-location"] = "default"
 	var configPath string = "/Users/drajds/.agnosticd/drajds0714ocp4b/ocp4-workshop_drajds0714ocp4b_kubeconfig"
 	var dclient dynamic.Interface
 	_, dclient, err = utils.LoadConfig(configPath)
 	if err != nil {
 		panic(err.Error())
 	}
-	// _, err = utils.CreateMyVeleroInstance(dclient, namespace)
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
+	if createVelero {
+		_, err = utils.CreateMyVeleroInstance(dclient, namespace)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
 	var backupSpec = unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "velero.io/v1",
@@ -33,7 +35,7 @@ func BackupNginxStateless() {
 			"metadata": map[string]interface{}{
 				"name":      "nginx-stateless",
 				"namespace": namespace,
-				"labels":    veleroLabel,
+				// "labels":    veleroLabel,
 			},
 			"spec": map[string]interface{}{
 				"hooks": map[string]interface{}{},

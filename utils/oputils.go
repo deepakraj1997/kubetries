@@ -56,7 +56,7 @@ func CreateMyVeleroInstance(client dynamic.Interface, namespace string) (unstruc
 							"namespace": "oadp-operator",
 						},
 						"object_storage": map[string]interface{}{
-							"bucket": "myBucket",
+							"bucket": "deepakvelero",
 							"prefix": "velero",
 						},
 						"name":     "default",
