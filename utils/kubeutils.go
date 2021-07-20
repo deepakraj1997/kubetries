@@ -16,11 +16,14 @@ import (
 )
 
 func LoadConfig(path string) (*kubernetes.Clientset, dynamic.Interface, error) {
-	var kubeconfig *string
-
-	kubeconfig = flag.String("kubeconfig", path, "kubeconfig file")
-	flag.Parse()
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	var kubeconfig string
+	if flag.Lookup("kubeconfig") == nil {
+		kubeconfig = *flag.String("kubeconfig", path, "kubeconfig file")
+		flag.Parse()
+	} else {
+		kubeconfig = flag.Lookup("kubeconfig").Value.(flag.Getter).Get().(string)
+	}
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		panic(err.Error())
 	}

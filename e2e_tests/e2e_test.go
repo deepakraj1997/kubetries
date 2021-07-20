@@ -21,7 +21,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 })
 
-var _ = Describe("Oadp", func() {
+var _ = Describe("OADP", func() {
 	var _ = Describe("Verify OADP namespace is created", func() {
 		err := utils.GetKNamespace(clientset, "nginx-example")
 		Expect(err).NotTo(HaveOccurred())
@@ -53,4 +53,9 @@ var _ = Describe("Oadp", func() {
 		// verify pods
 	})
 
+})
+
+var _ = AfterSuite(func() {
+	err := DestroyTestSuite("oadp-operator")
+	Expect(err).NotTo(HaveOccurred())
 })
