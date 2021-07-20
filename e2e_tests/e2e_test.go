@@ -1,6 +1,8 @@
 package e2e_tests
 
 import (
+	"fmt"
+
 	"github.com/deepakraj1997/kubetries/nginx"
 	"github.com/deepakraj1997/kubetries/utils"
 	. "github.com/onsi/ginkgo"
@@ -22,37 +24,50 @@ var _ = BeforeSuite(func() {
 })
 
 var _ = Describe("OADP", func() {
-	var _ = Describe("Verify OADP namespace is created", func() {
-		err := utils.GetKNamespace(clientset, "nginx-example")
-		Expect(err).NotTo(HaveOccurred())
-		// verify pods running
-	})
 
-	var _ = Describe("Verify Nginx Namespace is created after deploy", func() {
-		err := nginx.DeployNginxStateless()
-		Expect(err).NotTo(HaveOccurred())
-		err = utils.GetKNamespace(clientset, "nginx-example")
-		Expect(err).NotTo(HaveOccurred())
-	})
+	Describe("E2E", func() {
+		Context("Verify OADP Installation", func() {
+			It("OADP Namespace exists", func() {
+				err := utils.GetKNamespace(clientset, "nginx-example")
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
 
-	var _ = Describe("Verify backup exists", func() {
-		_, err := utils.GetVeleroBackup(dclient, "nginx-stateless", "nginx-example")
-		Expect(err).NotTo(HaveOccurred())
-		// verify pods
-	})
+		Context("Verify Nginx Deployment", func() {
+			err := nginx.DeployNginxStateless()
+			Expect(err).NotTo(HaveOccurred())
 
-	var _ = Describe("Delete Namespace", func() {
-		err := utils.DeleteKNamespace(clientset, "nginx-example")
-		Expect(err).NotTo(HaveOccurred())
-		// verify namespace
-	})
+			It("Nginx Namespace exists", func() {
+				err = utils.GetKNamespace(clientset, "nginx-example")
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
 
-	var _ = Describe("Restore Backup & Check States", func() {
-		err := nginx.RestoreNginxStateless()
-		Expect(err).NotTo(HaveOccurred())
-		// verify pods
-	})
+		Context("Verify backup exists", func() {
+			It("Backup Resource exists", func() {
+				_, err := utils.GetVeleroBackup(dclient, "nginx-stateless", "nginx-example")
+				Expect(err).NotTo(HaveOccurred())
+			})
+		})
 
+		var _ = Describe("Delete Namespace", func() {
+			err := utils.DeleteKNamespace(clientset, "nginx-example")
+			Expect(err).NotTo(HaveOccurred())
+			// verify namespace
+		})
+
+		Context("Restore Nginx", func() {
+			It("Restore Resource exists", func() {
+				err := nginx.RestoreNginxStateless()
+				Expect(err).NotTo(HaveOccurred())
+				// verify pods
+			})
+		})
+	})
+})
+
+var _ = Describe("Test", func() {
+	fmt.Printf("hi")
 })
 
 var _ = AfterSuite(func() {
